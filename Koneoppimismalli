@@ -1,3 +1,4 @@
+#Koneoppimismallit on rakennettu R-kielellä
 #vieraana kielenä opiskelevien aineisto
 x <- read.csv('aspfl.csv')
 x$asp <- as.factor(x$asp)
