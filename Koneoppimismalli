@@ -1,0 +1,58 @@
+#vieraana kielenä opiskelevien aineisto
+x <- read.csv('aspfl.csv')
+x$asp <- as.factor(x$asp)
+x$stem <- as.factor(x$stem)
+x$marker <- as.factor(x$marker)
+x$lang <- as.factor(x$lang)
+x$prof <- as.factor(x$prof)
+
+#toisena kielenä opiskelevien aineisto
+y <- read.csv('asphl.csv')
+y$asp <- as.factor(y$asp)
+y$stem <- as.factor(y$stem)
+y$marker <- as.factor(y$marker)
+y$lang <- as.factor(y$lang)
+y$prof <- as.factor(y$prof)
+
+#Koodi päätöspuun piirtämiseen, vieraana kielenä
+library(party)
+vidtree <- ctree(asp ~ stem + marker, data = x)
+plot(vidtree)
+
+#Koodi päätöspuun piirtämiseen, toisena kielenä
+library(party)
+vidtree <- ctree(asp ~ stem + marker, data = y)
+plot(vidtree)
+
+#Logistinen regressio, monitasomallinnus, kielitaito ja äidinkieli huomioitu satunnaisena parametrina (random effect), vieraana kielenä
+#stem (verbin kanta) ja marker (aspektia merkitsevä pääte) vakiintununeena parametrinä (fixed effect)
+library(lme4)
+vidglm <- glmer(asp ~ stem + marker + (1|lang) + (1|prof), data = x, family = binomial)
+
+#toisena kielenä
+vidglm <- glmer(asp ~ stem + marker + (1|lang) + (1|prof), data = y, family = binomial)
+
+#Harjoitusdata, koneoppimismallin rakentaminen, päätöspuu, vieras kieli
+library(caTools)
+set.seed(123)
+split = sample.split(x$asp, SplitRatio = 0.75)
+training_set = subset(x, split == TRUE)
+test_set = subset(x, split == FALSE)
+classifier = rpart(formula = asp ~ .,
++                    data = training_set)
+y_pred = predict(classifier, newdata = test_set[-1], type = 'class')
+acc <- table(test_set[,1],y_pred)
+sum(diag(acc))/sum(acc)*100
+
+#Harjoitusdata, koneoppimismallin rakentaminen, päätöspuu, vieras kieli
+library(caTools)
+set.seed(123)
+split = sample.split(y$asp, SplitRatio = 0.75)
+training_set = subset(y, split == TRUE)
+test_set = subset(x, split == FALSE)
+classifier = rpart(formula = asp ~ .,
++                    data = training_set)
+y_pred = predict(classifier, newdata = test_set[-1], type = 'class')
+acc <- table(test_set[,1],y_pred)
+sum(diag(acc))/sum(acc)*100
+
