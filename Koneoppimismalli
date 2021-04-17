@@ -33,26 +33,26 @@ vidglm <- glmer(asp ~ stem + marker + (1|lang) + (1|prof), data = x, family = bi
 vidglm <- glmer(asp ~ stem + marker + (1|lang) + (1|prof), data = y, family = binomial)
 
 #Harjoitusdata, koneoppimismallin rakentaminen, päätöspuu, vieras kieli
+library(rpart)
 library(caTools)
 set.seed(123)
 split = sample.split(x$asp, SplitRatio = 0.75)
 training_set = subset(x, split == TRUE)
 test_set = subset(x, split == FALSE)
-classifier = rpart(formula = asp ~ .,
-+                    data = training_set)
-y_pred = predict(classifier, newdata = test_set[-1], type = 'class')
-acc <- table(test_set[,1],y_pred)
+classifier = rpart(formula = asp ~ stem + marker,data = training_set)
+y_pred = predict(classifier, newdata = test_set[-3], type = 'class')
+acc <- table(test_set[,3],y_pred)
 sum(diag(acc))/sum(acc)*100
 
 #Harjoitusdata, koneoppimismallin rakentaminen, päätöspuu, vieras kieli
+library(rpart)
 library(caTools)
 set.seed(123)
-split = sample.split(y$asp, SplitRatio = 0.75)
+split = sample.split(x$asp, SplitRatio = 0.75)
 training_set = subset(y, split == TRUE)
-test_set = subset(x, split == FALSE)
-classifier = rpart(formula = asp ~ .,
-+                    data = training_set)
-y_pred = predict(classifier, newdata = test_set[-1], type = 'class')
-acc <- table(test_set[,1],y_pred)
+test_set = subset(y, split == FALSE)
+classifier = rpart(formula = asp ~ stem + marker,data = training_set)
+y_pred = predict(classifier, newdata = test_set[-3], type = 'class')
+acc <- table(test_set[,3],y_pred)
 sum(diag(acc))/sum(acc)*100
 
